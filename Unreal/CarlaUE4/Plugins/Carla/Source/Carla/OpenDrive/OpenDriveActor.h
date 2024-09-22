@@ -28,7 +28,7 @@ protected:
   /// 用于存放图标精灵的UBillboardComponent
   UBillboardComponent *SpriteComponent;
 
-  /// 雪碧用于广告牌组件
+  /// 上述图标精灵用于广告牌组件
   UTexture2D *SpriteTexture;
 
 private:
