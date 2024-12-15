@@ -131,7 +131,7 @@ file(GLOB libcarla_server_sources
 # ==============================================================================
 # 在同一构建类型中创建调试和发布的目标
 # ==============================================================================
-
+//编写版本构建相关操作
 if (LIBCARLA_BUILD_RELEASE)
 
   add_library(carla_server STATIC ${libcarla_server_sources})
@@ -145,7 +145,7 @@ if (LIBCARLA_BUILD_RELEASE)
   set_target_properties(carla_server PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
 
 endif()
-
+//调试版本构建相关操作
 if (LIBCARLA_BUILD_DEBUG)
 
   add_library(carla_server_debug STATIC ${libcarla_server_sources})

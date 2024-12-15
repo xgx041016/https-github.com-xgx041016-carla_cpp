@@ -32,7 +32,7 @@ public:
   LightManager() {} // 构造函数
 
   ~LightManager(); // 析构函数
-
+//把源对象中各个重要的成员变量的值逐一复制到新创建的对象中
   LightManager(const LightManager& other) : EnableSharedFromThis<LightManager>() { // 拷贝构造函数
     _lights_state = other._lights_state; // 拷贝灯光状态
     _lights_changes = other._lights_changes; // 拷贝灯光变更状态

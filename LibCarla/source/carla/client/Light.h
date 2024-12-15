@@ -67,7 +67,7 @@ private:   // 私有成员
 
 
   friend class LightManager;    // 声明 LightManager 为友元类，可以访问私有成员
-
+//整体构建了一个简单的光源对象的数据结构和初始化机制
   Light(WeakPtr<LightManager> light_manager,    // 构造函数，接受弱指针的 LightManager
     geom::Location location,   // 位置参数
     LightId id)     // 光源 ID 参数
