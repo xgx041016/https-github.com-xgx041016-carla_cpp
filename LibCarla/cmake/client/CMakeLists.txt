@@ -312,9 +312,10 @@ install(FILES ${libcarla_carla_ros2_sources} DESTINATION include/carla/ros2)
 
 
 # 构建发布版
+//条件判断及静态库添加
 if (LIBCARLA_BUILD_RELEASE)
   add_library(carla_client${carla_target_postfix} STATIC ${libcarla_sources})
-
+//设置头文件包含路径
   target_include_directories(carla_client${carla_target_postfix} SYSTEM PRIVATE
       "${BOOST_INCLUDE_PATH}"
       "${RPCLIB_INCLUDE_PATH}"
@@ -327,7 +328,7 @@ if (LIBCARLA_BUILD_RELEASE)
     target_include_directories(carla_client${carla_target_postfix} SYSTEM PRIVATE
       ${ADRSS_INCLUDE_DIRS})
   endif()
-
+//安装目标配置
   install(TARGETS carla_client${carla_target_postfix} DESTINATION lib)
 
   if (WIN32) # @todo 修复在 Windows 上的 PythonAPI 构建漏洞。
