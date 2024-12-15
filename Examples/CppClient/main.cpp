@@ -79,6 +79,7 @@ static auto ParseArguments(int argc, const char *argv[]) {
 int main(int argc, const char *argv[]) {
     try {
         // 解析命令行参数
+        //从命令行参数中解析主机地址和端口号
         std::string host;
         uint16_t port;
         std::tie(host, port) = ParseArguments(argc, argv);
