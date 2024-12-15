@@ -178,7 +178,7 @@ boost::optional<Waypoint> Map::GetClosestWaypointOnRoad(
     if (query_result.size() == 0) { // 如果没有找到结果
         return boost::optional<Waypoint>{}; // 返回空的航点
     }
-
+//从一个查询结果中获取最近的线段相关信息
     Rtree::BSegment segment = query_result.front().first; // 获取最近的线段
     Rtree::BPoint s1 = segment.first; // 线段的起点
     Rtree::BPoint s2 = segment.second; // 线段的终点
@@ -188,7 +188,7 @@ boost::optional<Waypoint> Map::GetClosestWaypointOnRoad(
 
     Waypoint result_start = query_result.front().second.first; // 最近的起始航点
     Waypoint result_end = query_result.front().second.second; // 最近的结束航点
-
+//进行路径规划与车道相关的位置计算
     if (result_start.lane_id < 0) { // 如果起始航点的车道ID小于0
         double delta_s = distance_to_segment.first; // 计算距离差
         double final_s = result_start.s + delta_s; // 计算最终的s值
@@ -211,7 +211,7 @@ boost::optional<Waypoint> Map::GetClosestWaypointOnRoad(
         }
     }
 }
-
+//尝试获取地图上与给定位置以及车道类型
 boost::optional<Waypoint> Map::GetWaypoint(
     const geom::Location &pos,
     int32_t lane_type) const {
@@ -220,7 +220,7 @@ boost::optional<Waypoint> Map::GetWaypoint(
     if (!w.has_value()) { // 如果没有找到航点
         return w; // 返回空
     }
-
+//判断车辆是否在车道内、与车道边界的距离关系
     const auto dist = geom::Math::Distance2D(ComputeTransform(*w).location, pos); // 计算输入位置与航点之间的距离
     const auto lane_width_info = GetLane(*w).GetInfo<RoadInfoLaneWidth>(w->s); // 获取车道宽度信息
     const auto half_lane_width =
@@ -232,7 +232,7 @@ boost::optional<Waypoint> Map::GetWaypoint(
 
     return boost::optional<Waypoint>{}; // 否则返回空
 }
-
+//可以妥善处理找不到航点的情况
 boost::optional<Waypoint> Map::GetWaypoint(
     RoadId road_id,
     LaneId lane_id,
