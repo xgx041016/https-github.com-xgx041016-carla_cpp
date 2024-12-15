@@ -3,7 +3,7 @@
 //
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
-
+//定义了一个结构体 FWeatherParameters，它用于表示与天气相关的各种参数
 #pragma once
 
 #include "WeatherParameters.generated.h"
