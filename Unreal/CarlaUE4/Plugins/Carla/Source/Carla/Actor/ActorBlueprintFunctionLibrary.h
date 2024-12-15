@@ -22,11 +22,11 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "ActorBlueprintFunctionLibrary.generated.h"
-
+//Unreal Engine 中的 前向声明（forward declarations），它声明了几种类型的存在，但并没有定义它们的具体实现
 class ASceneCaptureSensor;
 class AShaderBasedSensor;
 struct FLidarDescription;
-
+//定义了一个继承自 UBlueprintFunctionLibrary 的类 UActorBlueprintFunctionLibrary
 UCLASS()
 class UActorBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {
@@ -59,11 +59,11 @@ public:
       const FString &Category,
       const FString &Type,
       const FString &Id);
-
+//定义了一个 静态成员函数 的声明：MakeGenericSensorDefinition，它属于某个类
   static FActorDefinition MakeGenericSensorDefinition(
       const FString &Type,
       const FString &Id);
-
+//创建并返回一个 FActorDefinition 对象，用于定义一个摄像机的配置或描述
   static FActorDefinition MakeCameraDefinition(
       const FString &Id,
       bool bEnableModifyingPostProcessEffects = false);
@@ -73,7 +73,7 @@ public:
       const FString &Id,
       bool bEnableModifyingPostProcessEffects,
       bool &Success,
-      FActorDefinition &Definition);
+      FActorDefinition &Definition);//创建一个摄像机的定义，并通过多个输出参数返回结果
 
   static FActorDefinition MakeNormalsCameraDefinition();
 
@@ -232,7 +232,7 @@ public:
   /// @name Helpers to set Actors
   /// ==========================================================================
   /// @{
-
+//设置或初始化不同类型的传感器，并且它们都接受一个 FActorDescription 类型的描述作为输入参数
   UFUNCTION(Category = "Carla Actor", BlueprintCallable)
   static void SetCamera(const FActorDescription &Description, ASceneCaptureSensor *Camera);
   static void SetCamera(const FActorDescription &Description, AShaderBasedSensor *Camera);
