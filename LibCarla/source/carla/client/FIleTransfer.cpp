@@ -6,7 +6,7 @@
 
 #include "FileTransfer.h"
 #include "carla/Version.h"
-
+//命名空间及平台相关的基础文件夹路径初始化
 namespace carla {
 namespace client {
 
@@ -15,7 +15,7 @@ namespace client {
   #else
         std::string FileTransfer::_filesBaseFolder = std::string(getenv("HOME")) + "/carlaCache/";
   #endif
-
+//设置基础文件夹路径的函数定义
   bool FileTransfer::SetFilesBaseFolder(const std::string &path) {
     if (path.empty()) return false;
 
@@ -42,7 +42,7 @@ namespace client {
 
     return (stat(fullpath.c_str(), &buffer) == 0);
   }
-
+//这段代码主要负责在 WriteFile 函数内构建出要写入文件的完整路径
   bool FileTransfer::WriteFile(std::string path, std::vector<uint8_t> content) {
     std::string writePath = _filesBaseFolder;
     writePath += "/";
@@ -65,7 +65,7 @@ namespace client {
 
     return true;
   }
-
+//这段代码重点在于 ReadFile 函数内构建出要读取文件的完整路径
   std::vector<uint8_t> FileTransfer::ReadFile(std::string path) {
     std::string fullpath = _filesBaseFolder;
     fullpath += "/";
