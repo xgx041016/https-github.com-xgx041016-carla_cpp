@@ -128,6 +128,7 @@ int main(int argc, const char *argv[]) {
         vehicle->ApplyControl(control);
 
         // 调整观察者位置以便在模拟器窗口中看到车辆，获取模拟世界中的观察者（相当于模拟窗口的视角），通过对其位置和旋转角度进行一系列计算和调整，改变视角位置和方向，使得可以在模拟窗口中看到生成并正在运动的车辆
+        //调整观察者（通常是摄像机或自由视角控制器）的位置和方向，以实现特定的视角切换或动态镜头效果
         auto spectator = world.GetSpectator();
         transform.location += 32.0f * transform.GetForwardVector();
         transform.location.z += 2.0f;
