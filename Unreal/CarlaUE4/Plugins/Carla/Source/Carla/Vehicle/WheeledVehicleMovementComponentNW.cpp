@@ -11,9 +11,10 @@
 #include "Components/PrimitiveComponent.h"
 #include "Logging/MessageLog.h"
 
+// 构造函数：初始化车辆组件
 UWheeledVehicleMovementComponentNW::UWheeledVehicleMovementComponentNW(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	// grab default values from physx
+	// 从PhysX获取默认值
 	PxVehicleEngineData DefEngineData;
 	EngineSetup.MOI = DefEngineData.mMOI;
 	EngineSetup.MaxRPM = OmegaToRPM(DefEngineData.mMaxOmega);
@@ -21,7 +22,7 @@ UWheeledVehicleMovementComponentNW::UWheeledVehicleMovementComponentNW(const FOb
 	EngineSetup.DampingRateZeroThrottleClutchEngaged = DefEngineData.mDampingRateZeroThrottleClutchEngaged;
 	EngineSetup.DampingRateZeroThrottleClutchDisengaged = DefEngineData.mDampingRateZeroThrottleClutchDisengaged;
 
-	// Convert from PhysX curve to ours
+	// 将PhysX曲线转换为我们的曲线
 	FRichCurve* TorqueCurveData = EngineSetup.TorqueCurve.GetRichCurve();
 	for (PxU32 KeyIdx = 0; KeyIdx < DefEngineData.mTorqueCurve.getNbDataPairs(); ++KeyIdx)
 	{
@@ -30,19 +31,23 @@ UWheeledVehicleMovementComponentNW::UWheeledVehicleMovementComponentNW(const FOb
 		TorqueCurveData->AddKey(Input, Output);
 	}
 
+	// 设置离合器数据
 	PxVehicleClutchData DefClutchData;
 	TransmissionSetup.ClutchStrength = DefClutchData.mStrength;
 
+	// 设置变速箱数据
 	PxVehicleGearsData DefGearSetup;
 	TransmissionSetup.GearSwitchTime = DefGearSetup.mSwitchTime;
 	TransmissionSetup.ReverseGearRatio = DefGearSetup.mRatios[PxVehicleGearsData::eREVERSE];
 	TransmissionSetup.FinalRatio = DefGearSetup.mFinalRatio;
 
+	// 设置自动变速箱数据
 	PxVehicleAutoBoxData DefAutoBoxSetup;
 	TransmissionSetup.NeutralGearUpRatio = DefAutoBoxSetup.mUpRatios[PxVehicleGearsData::eNEUTRAL];
 	TransmissionSetup.GearAutoBoxLatency = DefAutoBoxSetup.getLatency();
 	TransmissionSetup.bUseGearAutoBox = true;
 
+	// 设置前进档位数据
 	for (uint32 i = PxVehicleGearsData::eFIRST; i < DefGearSetup.mNbRatios; ++i)
 	{
 		FVehicleNWGearData GearData;
@@ -52,19 +57,64 @@ UWheeledVehicleMovementComponentNW::UWheeledVehicleMovementComponentNW(const FOb
 		TransmissionSetup.ForwardGears.Add(GearData);
 	}
 
-	// Init steering speed curve
+	// 初始化转向速度曲线
 	FRichCurve* SteeringCurveData = SteeringCurve.GetRichCurve();
 	SteeringCurveData->AddKey(0.0f, 1.0f);
 	SteeringCurveData->AddKey(20.0f, 0.9f);
 	SteeringCurveData->AddKey(60.0f, 0.8f);
 	SteeringCurveData->AddKey(120.0f, 0.7f);
 
-	// Initialize WheelSetups array with 4 wheels, this can be modified via editor later
+	// 初始化轮子设置数组，默认为4个轮子
 	const int32 NbrWheels = 4;
 	WheelSetups.SetNum(NbrWheels);
 	DifferentialSetup.SetNum(NbrWheels);
 
 	IdleBrakeInput = 10;
+}
+
+// ... [代码继续，保持不变] ...
+
+// 更新引擎设置
+void UWheeledVehicleMovementComponentNW::UpdateEngineSetup(const FVehicleNWEngineData& NewEngineSetup)
+{
+	if (PVehicleDrive)
+	{
+		PxVehicleEngineData EngineData;
+		GetVehicleEngineSetup(NewEngineSetup, EngineData);
+
+		PxVehicleDriveNW* PVehicleDriveNW = (PxVehicleDriveNW*)PVehicleDrive;
+		PVehicleDriveNW->mDriveSimData.setEngineData(EngineData);
+	}
+}
+
+// 更新差速器设置
+void UWheeledVehicleMovementComponentNW::UpdateDifferentialSetup(const TArray<FVehicleNWWheelDifferentialData>& NewDifferentialSetup)
+{
+	if (PVehicleDrive)
+	{
+		PxVehicleDifferentialNWData DifferentialData;
+		GetVehicleDifferentialNWSetup(NewDifferentialSetup, DifferentialData);
+
+		PxVehicleDriveNW* PVehicleDriveNW = (PxVehicleDriveNW*)PVehicleDrive;
+		PVehicleDriveNW->mDriveSimData.setDiffData(DifferentialData);
+	}
+}
+
+// 更新变速箱设置
+void UWheeledVehicleMovementComponentNW::UpdateTransmissionSetup(const FVehicleNWTransmissionData& NewTransmissionSetup)
+{
+	if (PVehicleDrive)
+	{
+		PxVehicleGearsData GearData;
+		GetVehicleGearSetup(NewTransmissionSetup, GearData);
+
+		PxVehicleAutoBoxData AutoBoxData;
+		GetVehicleAutoBoxSetup(NewTransmissionSetup, AutoBoxData);
+
+		PxVehicleDriveNW* PVehicleDriveNW = (PxVehicleDriveNW*)PVehicleDrive;
+		PVehicleDriveNW->mDriveSimData.setGearsData(GearData);
+		PVehicleDriveNW->mDriveSimData.setAutoBoxData(AutoBoxData);
+	}
 }
 
 #if WITH_EDITOR
@@ -311,54 +361,7 @@ void UWheeledVehicleMovementComponentNW::UpdateSimulation(float DeltaTime)
 	});
 }
 
-void UWheeledVehicleMovementComponentNW::UpdateEngineSetup(const FVehicleNWEngineData& NewEngineSetup)
-{
-	if (PVehicleDrive)
-	{
-		PxVehicleEngineData EngineData;
-		GetVehicleEngineSetup(NewEngineSetup, EngineData);
-
-		PxVehicleDriveNW* PVehicleDriveNW = (PxVehicleDriveNW*)PVehicleDrive;
-		PVehicleDriveNW->mDriveSimData.setEngineData(EngineData);
-	}
-}
-
-void UWheeledVehicleMovementComponentNW::UpdateDifferentialSetup(const TArray<FVehicleNWWheelDifferentialData>& NewDifferentialSetup)
-{
-	if (PVehicleDrive)
-	{
-		PxVehicleDifferentialNWData DifferentialData;
-		GetVehicleDifferentialNWSetup(NewDifferentialSetup, DifferentialData);
-
-		PxVehicleDriveNW* PVehicleDriveNW = (PxVehicleDriveNW*)PVehicleDrive;
-		PVehicleDriveNW->mDriveSimData.setDiffData(DifferentialData);
-	}
-}
-
-void UWheeledVehicleMovementComponentNW::UpdateTransmissionSetup(const FVehicleNWTransmissionData& NewTransmissionSetup)
-{
-	if (PVehicleDrive)
-	{
-		PxVehicleGearsData GearData;
-		GetVehicleGearSetup(NewTransmissionSetup, GearData);
-
-		PxVehicleAutoBoxData AutoBoxData;
-		GetVehicleAutoBoxSetup(NewTransmissionSetup, AutoBoxData);
-
-		PxVehicleDriveNW* PVehicleDriveNW = (PxVehicleDriveNW*)PVehicleDrive;
-		PVehicleDriveNW->mDriveSimData.setGearsData(GearData);
-		PVehicleDriveNW->mDriveSimData.setAutoBoxData(AutoBoxData);
-	}
-}
-
-void BackwardsConvertCm2ToM2NW(float& val, float defaultValue)
-{
-	if (val != defaultValue)
-	{
-		val = Cm2ToM2(val);
-	}
-}
-
+// 序列化函数
 void UWheeledVehicleMovementComponentNW::Serialize(FArchive& Ar)
 {
 	Super::Serialize(Ar);
@@ -367,8 +370,8 @@ void UWheeledVehicleMovementComponentNW::Serialize(FArchive& Ar)
 		PxVehicleEngineData DefEngineData;
 		const float DefaultRPM = OmegaToRPM(DefEngineData.mMaxOmega);
 
-		// We need to convert from old units to new. This backwards compatible code fails in the rare case that they were using very strange values that are the new defaults in the correct units.
-		EngineSetup.MaxRPM = EngineSetup.MaxRPM != DefaultRPM ? OmegaToRPM(EngineSetup.MaxRPM) : DefaultRPM;	//need to convert from rad/s to RPM
+		// 从旧单位转换到新单位
+		EngineSetup.MaxRPM = EngineSetup.MaxRPM != DefaultRPM ? OmegaToRPM(EngineSetup.MaxRPM) : DefaultRPM;	//需要从rad/s转换为RPM
 	}
 
 	if (Ar.IsLoading() && Ar.UE4Ver() < VER_UE4_VEHICLES_UNIT_CHANGE2)
@@ -376,7 +379,7 @@ void UWheeledVehicleMovementComponentNW::Serialize(FArchive& Ar)
 		PxVehicleEngineData DefEngineData;
 		PxVehicleClutchData DefClutchData;
 
-		// We need to convert from old units to new. This backwards compatable code fails in the rare case that they were using very strange values that are the new defaults in the correct units.
+		// 从旧单位转换到新单位
 		BackwardsConvertCm2ToM2NW(EngineSetup.DampingRateFullThrottle, DefEngineData.mDampingRateFullThrottle);
 		BackwardsConvertCm2ToM2NW(EngineSetup.DampingRateZeroThrottleClutchDisengaged, DefEngineData.mDampingRateZeroThrottleClutchDisengaged);
 		BackwardsConvertCm2ToM2NW(EngineSetup.DampingRateZeroThrottleClutchEngaged, DefEngineData.mDampingRateZeroThrottleClutchEngaged);
@@ -385,24 +388,28 @@ void UWheeledVehicleMovementComponentNW::Serialize(FArchive& Ar)
 	}
 }
 
+// 计算常量
 void UWheeledVehicleMovementComponentNW::ComputeConstants()
 {
 	Super::ComputeConstants();
 	MaxEngineRPM = EngineSetup.MaxRPM;
 }
 
+// 获取轮胎数据
 const void* UWheeledVehicleMovementComponentNW::GetTireData(physx::PxVehicleWheels* InWheels, UVehicleWheel* InWheel)
 {
 	const void* realShaderData = &InWheels->mWheelsSimData.getTireData((PxU32)InWheel->WheelIndex);
 	return realShaderData;
 }
 
+// 获取轮子形状映射
 const int32 UWheeledVehicleMovementComponentNW::GetWheelShapeMapping(physx::PxVehicleWheels* InWheels, uint32 InWheel)
 {
 	const physx::PxI32 ShapeIndex = InWheels->mWheelsSimData.getWheelShapeMapping((PxU32)InWheel);
 	return ShapeIndex;
 }
 
+// 获取轮子数据
 const physx::PxVehicleWheelData UWheeledVehicleMovementComponentNW::GetWheelData(physx::PxVehicleWheels* InWheels, uint32 InWheel)
 {
 	const physx::PxVehicleWheelData WheelData = InWheels->mWheelsSimData.getWheelData((physx::PxU32)InWheel);
