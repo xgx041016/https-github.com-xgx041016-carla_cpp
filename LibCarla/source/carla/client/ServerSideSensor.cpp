@@ -77,7 +77,7 @@ namespace client {
     //通过Episode对象向外发送信息
     GetEpisode().Lock()->Send(*this,message);
   }
-
+//正确且安全地设置传感器对 GBuffer 流的订阅机制以及关联相应的回调处理逻辑
   void ServerSideSensor::ListenToGBuffer(uint32_t GBufferId, CallbackFunctionType callback) {
     log_debug(GetDisplayId(), ": subscribing to gbuffer stream"); //记录订阅GBuffer流的日志
     RELEASE_ASSERT(GBufferId < GBufferTextureCount); //确保GBufferId在有效范围内
@@ -106,7 +106,7 @@ namespace client {
     GetEpisode().Lock()->UnSubscribeFromGBuffer(*this, GBufferId);
     listening_mask.reset(GBufferId + 1); // 重置掩码的相应位，表示停止监听
   }
-
+//触发和传递自身对象
   void ServerSideSensor::EnableForROS() {
     // 使传感器支持ROS
     GetEpisode().Lock()->EnableForROS(*this);
@@ -121,7 +121,7 @@ namespace client {
     //检查传感器是否启用了对ROS的支持
     return GetEpisode().Lock()->IsEnabledForROS(*this);
   }
-
+//确保传感器对象及其相关资源能被妥善地释放和清理
   bool ServerSideSensor::Destroy() {
     log_debug("calling sensor Destroy() ", GetDisplayId()); // 记录调试日志，表示调用了Destroy方法
     if (IsListening()) { // 如果传感器正在监听
