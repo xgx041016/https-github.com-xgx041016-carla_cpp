@@ -1,5 +1,5 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
-
+//引入 Unreal Engine 中的几个头文件，以便在 C++ 项目中使用相关的功能
 #include "Carla.h"
 #include "Developer/Settings/Public/ISettingsModule.h"
 #include "Developer/Settings/Public/ISettingsSection.h"
@@ -10,7 +10,7 @@
 
 DEFINE_LOG_CATEGORY(LogCarla);
 DEFINE_LOG_CATEGORY(LogCarlaServer);
-
+//定义了 FCarlaModule::StartupModule() 函数，这是 Unreal Engine 中模块初始化的一部分。模块的 StartupModule() 函数通常在模块加载时调用，用来执行一些模块启动时需要的初始化操作
 void FCarlaModule::StartupModule()
 {
 	RegisterSettings();
@@ -49,7 +49,7 @@ void FCarlaModule::LoadChronoDll()
 	}
 	#endif
 }
-
+//定义了 FCarlaModule::ShutdownModule() 函数，通常在模块被卸载或者关闭时调用，用于执行一些清理操作
 void FCarlaModule::ShutdownModule()
 {
 	if (UObjectInitialized())
@@ -88,7 +88,7 @@ void FCarlaModule::RegisterSettings()
 		}
 	}
 }
-
+//注销在 Carla 模块中注册的设置项。通过调用 Unreal Engine 的设置模块 API，它会将之前注册的 Carla 设置从 Unreal Engine 的设置系统中移除
 void FCarlaModule::UnregisterSettings()
 {
 	// Ensure to unregister all of your registered settings here, hot-reload would
